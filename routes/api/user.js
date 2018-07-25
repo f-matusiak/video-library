@@ -43,4 +43,15 @@ router.get('/favorites', auth, (req, res, next) => {
     });
 });
 
+router.post('/favorites/:id', auth, (req, res, next) => {
+  User.findById(req.user.id)
+    .then((user) => {
+      user.favorite(req.params.id)
+      res.status(200).json({ sucess: true, favorites: user.favorites });
+    })
+    .catch((err) => {
+      res.status(400).json({ error: { message: err.message } });
+    })
+});
+
 module.exports = router;

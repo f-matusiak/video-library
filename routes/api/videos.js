@@ -13,21 +13,20 @@ router.get('/', (req, res, next) => {
   if (req.body.offset) {
     offset = req.body.offset;
   }
-  Video.find().limit(100)
+
+  Video.find().skip(offset).limit(limit)
     .then((videos) => {
       res.status(200).json(videos);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: { message: 'Database error' } });
     });
 });
 
-router.post('/', (req, res, next) => {
+router.post('/add', (req, res, next) => {
   // get movie details and detect which movie handler should be used, else send error: service not supported
+
   res.status(200).send('you added new video!');
 });
-
-router.post('/:id/makefav', /* require auth, */(req, res, next) => {
-
-
-  res.status(200).send({ video: req.params.id });
-})
 
 module.exports = router;
