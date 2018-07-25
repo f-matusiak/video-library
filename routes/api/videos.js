@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const getService = require('../../helpers/serviceHelper');
 
 const Video = mongoose.model('Video');
 const router = express.Router();
@@ -25,8 +26,25 @@ router.get('/', (req, res, next) => {
 
 router.post('/add', (req, res, next) => {
   // get movie details and detect which movie handler should be used, else send error: service not supported
+  if (!req.body.url) {
+    return res.status(400).json({ error: { url: 'not provided' } });
+  }
 
-  res.status(200).send('you added new video!');
+  const url = req.body.url;
+  const service = getService(url);
+
+  const isId = url.indexOf('http') !== -1 || url.indexOf('www') !== -1;
+  const id = isId ? url : service.getId(url, service);
+  console.log('id', id);
+  service.fetch(id)
+    .then(async (video) => {
+      await Video.create(video);
+      console.log(video);
+      res.status(200).json({ success: true, video });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: { message: 'Not found' } });
+    })
 });
 
 module.exports = router;
