@@ -47,4 +47,24 @@ router.post('/add', (req, res, next) => {
     })
 });
 
+router.delete('/', (req, res, next) => {
+  Video.remove({})
+    .then(() => {
+      res.status(200).json({ sucess: true, message: 'sucessfully removed all videos.' });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: { message: 'something went wrong.' } })
+    });
+});
+
+router.delete('/:id', (req, res, next) => {
+  Video.remove({ id: req.params.id })
+    .then(() => {
+      res.status(200).json({ sucess: true, message: 'sucessfully removed video.' });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: { message: 'something went wrong.' } })
+    });
+})
+
 module.exports = router;
