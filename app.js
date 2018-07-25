@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(logger('dev'));
 
 const routes = require('./routes');
-app.use('/', (routes));
+app.use('/', routes);
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500);

@@ -11,6 +11,10 @@ const VideoSchema = mongoose.Schema({
   },
   likes: Number,
   thumbnailUrl: String,
-}, { timestamps: true });
+  createdAt: {
+    type: Date,
+    index: true,
+  }
+});
 
 module.exports = mongoose.model('Video', VideoSchema);
