@@ -5,10 +5,12 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const logger = require('morgan');
-
+const socketConfig = require('./socket.js');
 
 mongoose.connect(process.env.MONGODB_URI);
 const app = express();
+const server = http.createServer(app);
+const io = socketConfig(server);
 
 require('./models/User');
 require('./models/Video');
@@ -29,11 +31,10 @@ app.use((err, req, res, next) => {
   res.json({
     'errors': {
       message: err.message,
-      error: {}
     }
   });
 });
 
-const server = app.listen(process.env.PORT || 3000, () => {
+server.listen(process.env.PORT || 3000, () => {
   console.log(`Listening on port ${server.address().port}.`);
 });
