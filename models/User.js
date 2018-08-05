@@ -1,64 +1,44 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true,
-  },
-  hash: {
-    type: String,
-    required: true,
-  },
-  favorites: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Video',
-  }],
-});
-
-UserSchema.pre('save', function (next) {
-  if (this.isNew) {
-    bcrypt.hash(this.hash, 10)
-      .then((hash) => {
-        this.hash = hash;
-
-        next();
-      });
-
-  } else {
-    next();
-  }
-});
-
-UserSchema.methods.validatePassword = function (password) {
-  return bcrypt.compareSync(password, this.hash);
-}
-
-UserSchema.methods.favorite = function (id) {
-  if (this.favorites.indexOf(id) === -1) {
-    this.favorites.push(id);
-  }
-
-  return this.save();
-}
-
-UserSchema.methods.unFavorite = function (id) {
-  this.favorites.remove(id);
-  return this.save();
-}
-
-UserSchema.methods.generateJWT = function () {
-  const payload = {
-    id: this._id,
-    username: this.username
-  };
-
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: 60 * 60 * 24
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define('user', {
+    username: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    hash: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    favorites: {
+      type: DataTypes.ARRAY(DataTypes.JSON),
+      defaultValue: [],
+    }
   });
+
+  User.hook('beforeCreate', (user, options) => {
+    return bcrypt.hash(user.hash, 10)
+      .then((hash) => {
+        user.hash = hash;
+      });
+  })
+
+  User.prototype.validatePassword = function (password) {
+    return bcrypt.compareSync(password, this.hash);
+  }
+
+  User.prototype.generateJWT = function () {
+    const payload = {
+      id: this.id,
+      username: this.username
+    };
+
+    return jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: 60 * 60 * 24
+    });
+  }
+
+  return User;
 }
-
-
-module.exports = mongoose.model('User', UserSchema);

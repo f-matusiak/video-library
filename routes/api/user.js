@@ -1,13 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const auth = require('../../middlewares/auth');
 const credentials = require('../../middlewares/credentials');
+const { User } = require('../../sequelize');
 
 const router = express.Router();
-const User = mongoose.model('User');
 
 router.post('/login', credentials, (req, res, next) => {
-  User.findOne({ username: req.body.username })
+  User.findOne({ where: { username: req.body.username } })
     .then((user) => {
       if (user.validatePassword(req.body.password)) {
         const token = user.generateJWT();
@@ -16,6 +15,7 @@ router.post('/login', credentials, (req, res, next) => {
       return res.status(400).json({ error: { password: 'wrong password' } });
     })
     .catch((err) => {
+      console.log(err.message);
       return res.status(400).json({ error: { user: 'not found' } });
     });
 });
@@ -36,6 +36,7 @@ router.post('/add', credentials, (req, res, next) => {
 router.get('/favorites', auth, (req, res, next) => {
   User.findById(req.user.id)
     .then((user) => {
+      console.log(user);
       return res.status(200).json({ favorites: user.favorites });
     })
     .catch((err) => {
@@ -46,7 +47,10 @@ router.get('/favorites', auth, (req, res, next) => {
 router.post('/favorites/:id', auth, (req, res, next) => {
   User.findById(req.user.id)
     .then((user) => {
-      user.favorite(req.params.id)
+      user.favorites = [...user.favorites, { id: req.params.id }];
+      return user.save();
+    })
+    .then((user) => {
       res.status(200).json({ sucess: true, favorites: user.favorites });
     })
     .catch((err) => {
