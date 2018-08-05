@@ -20,6 +20,7 @@ sequelize.sync()
   });
 
 module.exports = {
+  sequelize,
   User,
-  Video
+  Video,
 };
