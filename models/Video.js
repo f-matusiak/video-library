@@ -1,20 +1,19 @@
-const mongoose = require('mongoose');
+module.exports = (sequelize, DataTypes) => {
+  const Video = sequelize.define('video', {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    views: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    likes: DataTypes.INTEGER,
+    thumbnailUrl: DataTypes.STRING,
+    createdAt: {
+      type: DataTypes.DATE
+    }
+  });
 
-const VideoSchema = mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  views: {
-    type: Number,
-    required: true,
-  },
-  likes: Number,
-  thumbnailUrl: String,
-  createdAt: {
-    type: Date,
-    index: true,
-  }
-});
-
-module.exports = mongoose.model('Video', VideoSchema);
+  return Video;
+}

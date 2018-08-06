@@ -1,9 +1,8 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const faker = require('faker');
+const { Video } = require('../../sequelize');
 
 const router = express.Router();
-const Video = mongoose.model('Video');
 
 router.post('/', (req, res, next) => {
   const promises = [];

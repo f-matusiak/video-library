@@ -1,8 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const getService = require('../../helpers/serviceHelper');
+const { Video } = require('../../sequelize');
 
-const Video = mongoose.model('Video');
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
@@ -15,7 +14,7 @@ router.get('/', (req, res, next) => {
     offset = req.body.offset;
   }
 
-  Video.find().skip(offset).limit(limit)
+  Video.findAll({ offset, limit })
     .then((videos) => {
       res.status(200).json(videos);
     })
@@ -39,7 +38,6 @@ router.post('/add', (req, res, next) => {
   service.fetch(id)
     .then(async (video) => {
       await Video.create(video);
-      console.log(video);
       res.status(200).json({ success: true, video });
     })
     .catch((err) => {
